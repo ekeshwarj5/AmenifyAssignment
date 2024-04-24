@@ -17,8 +17,12 @@ from django.contrib import admin
 from django.urls import path
 from graphene_django.views import GraphQLView
 from students.schema import schema
+from django.http import HttpResponse
+
+def server_status(request):
+    return HttpResponse("Server is running fine!")
 
 urlpatterns = [
-    # path('', admin.site.urls),
+    path('', server_status),
     path('graphql/', GraphQLView.as_view(graphiql=True, schema=schema)),
 ]

@@ -21,6 +21,14 @@ class CreateStudent(graphene.Mutation):
         age = graphene.Int(required=True)
 
     def mutate(self, info, name, last_name, age):
+        if not name.strip():
+            raise ValueError("Name cannot be empty or whitespace.")
+        
+        if not last_name.strip():
+            raise ValueError("Last name cannot be empty or whitespace.")
+        if age <= 0:
+            raise ValueError("Age must be a positive integer.")
+        
         student = Student(name=name, last_name=last_name, age=age)
         student.save()
         return CreateStudent(student=student)
@@ -36,9 +44,15 @@ class UpdateStudent(graphene.Mutation):
 
     def mutate(self, info, id, name=None, last_name=None, age=None):
         student = Student.objects.get(pk=id)
-        if name is not None:
+        if not student:
+            raise ValueError("Student not found.")
+        
+        if age is not None and age <= 0:
+            raise ValueError("Age must be a positive integer.")
+
+        if name:
             student.name = name
-        if last_name is not None:
+        if last_name:
             student.last_name = last_name
         if age is not None:
             student.age = age
@@ -53,6 +67,10 @@ class DeleteStudent(graphene.Mutation):
 
     def mutate(self, info, id):
         student = Student.objects.get(pk=id)
+
+        if not student:
+            raise ValueError("Student not found.")
+
         student.delete()
         return DeleteStudent(success=True)
 
